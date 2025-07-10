@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="icon" href="assets/ssdancer.svg" type="image/svg+xml">
+
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-...+..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Custom CSS for Modern Styling -->
+    <link href="css/charges-payment.css" rel="stylesheet" />
+    <style>
+    </style>
+    <!-- Stripe JS -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+</head>
+<body>
+    
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text">
+                <h2>Loading</h2>
+                <p id="loadingStatus">Loading studio branding...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex" id="wrapper">
+          <!-- Sidebar-->
+          <div class="border-end" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <img src="assets/StudioSyncTransparent.svg" alt="Studio Sync Logo" style="width: 150px; height: auto;">
+            </div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action p-3" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="class-calendar.html">
+                    <i class="fas fa-calendar-alt me-2"></i>Class Calendar
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="allclasses.html">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Classes
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="families.html">
+                    <i class="fas fa-home me-2"></i>Families
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="students.html">
+                    <i class="fas fa-user-graduate me-2"></i>Students
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="instructors.html">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Instructors
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="costumes.html">
+                    <i class="fas fa-tshirt me-2"></i>Costumes
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="recital.html">
+                    <i class="fas fa-theater-masks me-2"></i>Recital
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="communication.html">
+                    <i class="fas fa-comments me-2"></i>Communication
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="studiostore.html">
+                    <i class="fas fa-store me-2"></i>Studio Store
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="charges-payments.html">
+                    <i class="fas fa-dollar-sign me-2"></i>Charges/Payments
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="reports.html">
+                    <i class="fas fa-chart-bar me-2"></i>Reports
+                </a>
+                <a class="list-group-item list-group-item-action p-3" href="settings.html">
+                    <i class="fas fa-cog me-2"></i>Settings
+                </a>
+            </div>
+            
+            <!-- Bottom Margin -->
+            <div style="margin-bottom: 4rem;"></div>
+        </div>
+
+        <!-- Page content wrapper-->
+        <div id="page-content-wrapper">
+            <!-- Top navigation-->
+            <nav class="navbar navbar-expand-lg navbar-light border-bottom">
+                <div class="container-fluid">
+                    <button class="btn btn-primary" id="sidebarToggle" style="width: 100px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Toggle Menu" data-bs-trigger="hover focus">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <!-- Centered Logo -->
+                    <div class="navbar-brand-center">
+                        <img id="studio-logo" src="" alt="Studio Logo" style="max-height: 120px; max-width: 240px; display: none;">
+                        <span id="studio-name" style="font-size: 1.5rem; font-weight: bold; color: #3DCED7;"></span>
+                    </div>
+
+                    <!-- Notifications and Profile Icons -->
+                    <div class="navbar-nav ms-auto d-flex align-items-center">
+                        <!-- Profile Icon Dropdown -->
+                        <div class="nav-item dropdown">
+                            <a class="nav-link" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    <span class="initials"></span>
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                                <li><h6 class="dropdown-header" id="userName" style="font-size: 1.2rem; font-weight: 700; color: #333333;">User Name</h6></li>
+                                <li><p class="dropdown-item-text" id="userEmail" style="font-size: 0.95rem; font-weight: 400; color: #333333;">user@example.com</p></li>
+                                <li><p class="dropdown-item-text" id="studioNameDisplay" style="font-size: 1.1rem; font-weight: 600; color: #333333;">Studio Name</p></li>
+                                <li><p class="dropdown-item-text" id="userRole" style="font-size: 0.85rem; font-weight: 400; color: #333333;">Role</p></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="settings.html"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" id="logoutButton"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Page content-->
+            <div class="container-fluid">
+                <h2 class="mb-4">Charges & Payments</h2>
+                
+                <!-- Tabbed Navigation -->
+                <ul class="nav nav-tabs mb-4" id="chargesTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="revenue-tab" data-bs-toggle="tab" data-bs-target="#revenue" type="button" role="tab" aria-controls="revenue" aria-selected="true">Revenue</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="charges-tab" data-bs-toggle="tab" data-bs-target="#charges" type="button" role="tab" aria-controls="charges" aria-selected="false">Charges/Payments</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tuition-rates-tab" data-bs-toggle="tab" data-bs-target="#tuition-rates" type="button" role="tab" aria-controls="tuition-rates" aria-selected="false">Tuition Rates</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="fees-tab" data-bs-toggle="tab" data-bs-target="#fees" type="button" role="tab" aria-controls="fees" aria-selected="false">Fees</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="discounts-tab" data-bs-toggle="tab" data-bs-target="#discounts" type="button" role="tab" aria-controls="discounts" aria-selected="false">Discounts</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="credit-tab" data-bs-toggle="tab" data-bs-target="#credit" type="button" role="tab" aria-controls="credit" aria-selected="false">Credit</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="student-family-max-tab" data-bs-toggle="tab" data-bs-target="#student-family-max" type="button" role="tab" aria-controls="student-family-max" aria-selected="false">Student/FamilyMax</button>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="chargesTabContent">
+                    <!-- Revenue Tab -->
+                    <div class="tab-pane fade show active" id="revenue" role="tabpanel" aria-labelledby="revenue-tab">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h4 class="mb-0">Revenue Overview</h4>
+                            </div>
+                            <div class="card-body p-4">
+                                <!-- Larger, modern revenue cards in a responsive grid -->
+                                <div class="row g-4">
+                                    <!-- Revenue This Month Card -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                                            <div class="card-body p-4">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h5 class="card-title mb-0 text-dark">Revenue This Month</h5>
+                                                    <span class="fs-1" style="color: #3DCED7;"><i class="fas fa-chart-line"></i></span>
+                                                </div>
+                                                <h2 class="display-4 fw-bold mb-2" style="color: #3DCED7;" id="revenueThisMonth">$0.00</h2>
+                                                <p class="card-text fs-5 text-success" id="revenueMonthChange">
+                                                    <i class="fas fa-arrow-up me-1"></i>0% from last month
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Revenue last 30 days Card -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                                            <div class="card-body p-4">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h5 class="card-title mb-0 text-dark">Last 30 Days</h5>
+                                                    <span class="fs-1" style="color: #3DCED7;"><i class="fas fa-calendar-alt"></i></span>
+                                                </div>
+                                                <h2 class="display-4 fw-bold mb-2" style="color: #3DCED7;" id="revenueLast30Days">$0.00</h2>
+                                                <p class="card-text fs-5 text-success" id="revenue30DayChange">
+                                                    <i class="fas fa-arrow-up me-1"></i>0% from previous period
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Outstanding balances -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                                            <div class="card-body p-4">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h5 class="card-title mb-0 text-dark">Outstanding Balances</h5>
+                                                    <span class="fs-1 text-danger"><i class="fas fa-exclamation-circle"></i></span>
+                                                </div>
+                                                <h2 class="display-4 fw-bold text-danger mb-2" id="outstandingBalances">$0.00</h2>
+                                                <p class="card-text fs-5 text-dark" id="outstandingBalanceCount">0 unpaid invoices</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Accounts with outstanding balance -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                                            <div class="card-body p-4">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h5 class="card-title mb-0 text-dark">Accounts with Outstanding Balances</h5>
+                                                    <span class="fs-1 text-danger"><i class="fas fa-user-clock"></i></span>
+                                                </div>
+                                                <h2 class="display-4 fw-bold text-danger mb-2" id="accountsWithBalance">0</h2>
+                                                <p class="card-text fs-5 text-dark" id="accountsWithBalancePercent">0% of total accounts</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charges Tab -->
+                    <div class="tab-pane fade" id="charges" role="tabpanel" aria-labelledby="charges-tab">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Charges & Payments History</h4>
+                                <div>
+                                    <button id="postChargesButton" class="btn btn-primary me-2">
+                                        <i class="fas fa-file-invoice-dollar me-1"></i> Post Charges
+                                    </button>
+                                    <button id="processPaymentsButton" class="btn btn-success">
+                                        <i class="fas fa-credit-card me-1"></i> Process Payments
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <!-- Add a search bar above the charges table -->
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" id="chargeSearchInput" placeholder="Search charges and payments..." aria-label="Search charges and payments">
+                                        <button class="btn btn-outline-secondary" type="button" id="clearChargeSearch">Clear</button>
+                                    </div>
+                                    <small id="chargeSearchResultCount" class="form-text text-muted mt-1"></small>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="chargesTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Family</th>
+                                                <th>Description</th>
+                                                <th>Amount</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Type</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Charges and Payments will be loaded here -->
+                                            <tr class="text-center text-muted">
+                                                <td colspan="6">Loading charges and payments...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tuition Rates Tab -->
+                    <div class="tab-pane fade" id="tuition-rates" role="tabpanel" aria-labelledby="tuition-rates-tab">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Tuition Rate Plans</h4>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTuitionRateModal">
+                                    <i class="fas fa-plus me-2"></i>Create Rate Plan
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="tuitionRatesTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Rate Name</th>
+                                                <th>Hours/Rates</th>
+                                                <th>Family Discount</th>
+                                                <th>Active</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Tuition rates will be loaded dynamically -->
+                                            <tr class="text-center text-muted">
+                                                <td colspan="5">No tuition rates found. Create your first rate plan to get started.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fees Tab -->
+                    <div class="tab-pane fade" id="fees" role="tabpanel" aria-labelledby="fees-tab">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Fee Management</h4>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newFeeModal">
+                                    <i class="fas fa-plus me-2"></i>Create New Fee
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <!-- Add a search bar above the fees table -->
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" id="feeSearchInput" placeholder="Search fees..." aria-label="Search fees">
+                                        <button class="btn btn-outline-secondary" type="button" id="clearFeeSearch">Clear</button>
+                                    </div>
+                                    <small id="searchResultCount" class="form-text text-muted mt-1"></small>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="feesTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Fee Name</th>
+                                                <th>Amount</th>
+                                                <th>Type</th>
+                                                <th>Associated With</th>
+                                                <th>Active</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Fees will be loaded here -->
+                                            <tr class="text-center text-muted">
+                                                <td colspan="5">No fees found. Create your first fee to get started.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Update the Discounts Tab content -->
+                    <div class="tab-pane fade" id="discounts" role="tabpanel" aria-labelledby="discounts-tab">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Discount Management</h4>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newDiscountModal">
+                                    <i class="fas fa-plus me-2"></i>Create New Discount
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <!-- Add a search bar above the discounts table -->
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" id="discountSearchInput" placeholder="Search discounts..." aria-label="Search discounts">
+                                        <button class="btn btn-outline-secondary" type="button" id="clearDiscountSearch">Clear</button>
+                                    </div>
+                                    <small id="discountSearchResultCount" class="form-text text-muted mt-1"></small>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="discountsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Discount Name</th>
+                                                <th>Amount</th>
+                                                <th>Type</th>
+                                                <th>Associated With</th>
+                                                <th>Active</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Discounts will be loaded here -->
+                                            <tr class="text-center text-muted">
+                                                <td colspan="7">No discounts found. Create your first discount to get started.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Update the Credit Tab content -->
+                    <div class="tab-pane fade" id="credit" role="tabpanel" aria-labelledby="credit-tab">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Credit Management</h4>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCreditModal">
+                                    <i class="fas fa-plus me-2"></i>Create New Credit
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <!-- Add a search bar above the credits table -->
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" id="creditSearchInput" placeholder="Search credits..." aria-label="Search credits">
+                                        <button class="btn btn-outline-secondary" type="button" id="clearCreditSearch">Clear</button>
+                                    </div>
+                                    <small id="creditSearchResultCount" class="form-text text-muted mt-1"></small>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="creditsTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Credit Name</th>
+                                                <th>Amount</th>
+                                                <th>Family</th>
+                                                <th>Notes</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Credits will be loaded here -->
+                                            <tr class="text-center text-muted">
+                                                <td colspan="5">No credits found. Create your first credit to get started.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Student/FamilyMax Tab -->
+                    <div class="tab-pane fade" id="student-family-max" role="tabpanel" aria-labelledby="student-family-max-tab">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">Student/Family Maximum Tuition</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="studentFamilyMaxForm">
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="enableStudentFamilyMax">
+                                                <label class="form-check-label" for="enableStudentFamilyMax">
+                                                    Enable Student & Family Maximum Tuition Limits
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="maxSettingsContainer" style="display: none;">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> Setting these limits will cap the total tuition amount charged to students and families. Each student will be charged up to the Student Max amount, and each family will be charged up to the Family Max amount.
+                                        </div>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label for="studentMaxAmount" class="form-label">Student Maximum Amount ($)</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="number" class="form-control" id="studentMaxAmount" placeholder="0.00" min="0" step="0.01">
+                                                </div>
+                                                <div class="form-text">Maximum tuition amount per student</div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <label for="familyMaxAmount" class="form-label">Family Maximum Amount ($)</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text">$</span>
+                                                    <input type="number" class="form-control" id="familyMaxAmount" placeholder="0.00" min="0" step="0.01">
+                                                </div>
+                                                <div class="form-text">Maximum tuition amount per family</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <button type="button" id="saveStudentFamilyMaxBtn" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
